@@ -5,11 +5,11 @@ test("initial condition", () => {
   render(<SummaryForm />);
 
   const checkbox = screen.getByRole("checkbox", {
-    name: /I agree to Terms and Conditions/i,
+    name: /terms and conditions/i,
   });
 
-  const confirmButton = screen.getAllByRole("button", {
-    name: "Confirm order",
+  const confirmButton = screen.getByRole("button", {
+    name: /confirm order/i,
   });
 
   // 체크박스가 default로 체크가 되어있지 않은 상태인지 확인
@@ -22,11 +22,11 @@ test("체크박스의 체크여부에 따라 버튼 활성화 여부 확인 테�
   render(<SummaryForm />);
 
   const checkbox = screen.getByRole("checkbox", {
-    name: /I agree to Terms and Conditions/i,
+    name: /terms and conditions/i,
   });
 
-  const confirmButton = screen.getAllByRole("button", {
-    name: "Confirm order",
+  const confirmButton = screen.getByRole("button", {
+    name: /Confirm order/i,
   });
 
   // 체크박스를 체크하면 버튼 활성화 여부 확인

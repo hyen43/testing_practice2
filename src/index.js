@@ -1,10 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { server } from "./mocks/node";
 
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-server.listen();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

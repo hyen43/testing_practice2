@@ -5,7 +5,6 @@ export const handlers = [
     return HttpResponse.json([
       { name: "Chocolate", imagePath: "/images/chocolate.png" },
       { name: "Vanilla", imagePath: "/images/vanilla.png" },
-      { name: "Chocolate", imagePath: "/images/chocolate.png" },
     ]);
   }),
 ];

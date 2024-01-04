@@ -28,9 +28,23 @@ test("update scoop subtotal when scoops change", async () => {
   expect(scoopsSubTotal).toHaveTextContent("6.00");
 });
 
-test("토핑의 소계를 업데이트하는 테스트", () => {
+test("토핑의 소계를 업데이트하는 테스트", async () => {
+  const user = userEvent.setup();
+  render(<Options optionType="toppings" />);
   // 기본 토핑 소계 단언(0)
-  // 한가지 옵션에 체크를 해 본 뒤 소계 업데이트
+  const toppingTotal = screen.getByText("Toppings total: $", { exact: false });
+  expect(toppingTotal).toHaveTextContent("0.00");
+  // 한가지 옵션에 체크를 해 본 뒤 소계 업데이트(handler.js 파일 참고_ toppings 엔드포인트에 대한 모의 서버 응답 참고)
+  const optionCherries = await screen.findByRole("checkbox", {
+    name: "Cherries",
+  });
+  await user.click(optionCherries);
+  expect(toppingTotal).toHaveTextContent("1.50");
   // 체크박스 2개를 동시에 처리했을 때, 소계 업데이트
+  const optionMandMs = screen.getByRole("checkbox", { name: "M&Ms" });
+  await user.click(optionMandMs);
+  expect(toppingTotal).toHaveTextContent("3.00");
   // 그 중 하나를 다시 체크 해제하고 소계에서 빠지는 지 확인
+  await user.click(optionCherries);
+  expect(toppingTotal).toHaveTextContent("1.50");
 });

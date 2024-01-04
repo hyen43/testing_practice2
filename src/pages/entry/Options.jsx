@@ -29,6 +29,7 @@ export default function Options({ optionType }) {
   if (error) {
     return <AlertBanner />;
   }
+  // console.log("type, total", optionType, totals);
 
   //TODO: 나중에 null 부분을 toping option 컴포넌트로 대체
   const ItemComponent = optionType === "scoops" ? ScoopOptions : ToppingOptions;

@@ -15,6 +15,9 @@ export default function Options({ optionType }) {
 
   //optionType is 'scoops' or 'toppings'
   useEffect(() => {
+    // 프로세스를 처리할 수 있는 javascript의 객체( 테스트를 위해 네트워크요청에 넣기)
+    // const controller = new AbortController();
+    // controller의 신호를 감지하고 있고, 신호가 중단되면 get도 중단된다.
     axios
       .get(`http://localhost:3030/${optionType}`)
       .then((res) => {
@@ -24,6 +27,11 @@ export default function Options({ optionType }) {
         // TODO: handle error response
         setError(true);
       });
+
+    //clean up function(컴포넌트 Unmount시, axios call 중단)
+    // return () => {
+    //   controller.abort();
+    // };
   }, [optionType]);
 
   if (error) {
@@ -49,9 +57,9 @@ export default function Options({ optionType }) {
     <>
       <h2>{optionType}</h2>
       <p>{formatCurrency(pricePerItem[optionType])} each</p>
-      <p>
+      <h3>
         {optionType} total: {formatCurrency(totals[optionType])}
-      </p>
+      </h3>
       <Row>{optionItems}</Row>
     </>
   );

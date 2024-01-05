@@ -8,7 +8,9 @@ test("update scoop subtotal when scoops change", async () => {
   render(<Options optionType="scoops" />);
 
   //시작: $0.00(text로 정의)
-  const scoopsSubTotal = screen.getByText("Scoops total: $", { exact: false });
+  const scoopsSubTotal = screen.getByRole("heading", {
+    name: /scoops total: \$/,
+  });
   expect(scoopsSubTotal).toHaveTextContent("0.00");
   // 바닐라 스쿱을 1개 업데이트 했을 때 소계가 달라지는 지,(비동기적인 요소가 있었음)
   const vanillaInput = await screen.findByRole("spinbutton", {
@@ -33,7 +35,9 @@ test("토핑의 소계를 업데이트하는 테스트", async () => {
   const user = userEvent.setup();
   render(<Options optionType="toppings" />);
   // 기본 토핑 소계 단언(0)
-  const toppingsTotal = screen.getByText("total: $", { exact: false });
+  const toppingsTotal = screen.getByRole("heading", {
+    name: /toppings total: \$/,
+  });
   expect(toppingsTotal).toHaveTextContent("0.00");
   // 한가지 옵션에 체크를 해 본 뒤 소계 업데이트(handler.js 파일 참고_ toppings 엔드포인트에 대한 모의 서버 응답 참고)
   const optionCherries = await screen.findByRole("checkbox", {
@@ -52,35 +56,61 @@ test("토핑의 소계를 업데이트하는 테스트", async () => {
 
 describe("맛 + 토핑의 총합을 구하기", () => {
   const user = userEvent.setup();
-  render(<OrderEntry />);
-  const entryTotal = screen.getByRole("heading", { name: /Grand total: \$/ });
-
-  // beforeEach(() => {});
-  it("총합은 0 부터 시작한다.", () => {
-    expect(entryTotal).toHaveTextContent("0.00");
+  test("총합은 0 부터 시작한다.", () => {
+    render(<OrderEntry />);
+    const grandTotal = screen.getByRole("heading", { name: /Grand total: \$/ });
+    expect(grandTotal).toHaveTextContent("0.00");
   });
-  it("맛이 추가되면 총합이 변한다.", async () => {
-    const chocolateInput = await screen.findByRole("spinbutton", {
-      name: /Chocolate/i,
-    });
-    await user.clear(chocolateInput);
-    await user.type(chocolateInput, "2");
-    expect(entryTotal).toHaveTextContent("4.00");
-  });
-  it("옵션이 추가되면 총합이 변한다.", async () => {
-    const checkboxHotFudge = await screen.findByRole("checkbox", {
-      name: /hot fudge/i,
-    });
+  test("맛이 추가되면 총합이 변한다.", async () => {
+    const user = userEvent.setup();
 
-    await user.click(checkboxHotFudge);
-    expect(entryTotal).toHaveTextContent("5.50");
-  });
-  it("아이템이 삭제되면 총합은 변한다.", async () => {
-    const checkboxHotFudge = await screen.findByRole("checkbox", {
-      name: "Hot fudge",
-    });
+    // Test that the total starts out at $0.00
+    render(<OrderEntry />);
+    const grandTotal = screen.getByRole("heading", { name: /Grand total: \$/ });
+    expect(grandTotal).toHaveTextContent("0.00");
 
-    await user.click(checkboxHotFudge);
-    expect(entryTotal).toHaveTextContent("4.00");
+    // update vanilla scoops to 2 and check grand total
+    const vanillaInput = await screen.findByRole("spinbutton", {
+      name: "Vanilla",
+    });
+    await user.clear(vanillaInput);
+    await user.type(vanillaInput, "2");
+    expect(grandTotal).toHaveTextContent("4.00");
+
+    // add cherries and check grand total
+    const cherriesCheckbox = await screen.findByRole("checkbox", {
+      name: "Cherries",
+    });
+    await user.click(cherriesCheckbox);
+    expect(grandTotal).toHaveTextContent("5.50");
+  });
+  test("아이템이 삭제되면 총합은 변한다.", async () => {
+    render(<OrderEntry />);
+
+    // add cherries
+    const cherriesCheckbox = await screen.findByRole("checkbox", {
+      name: "Cherries",
+    });
+    await user.click(cherriesCheckbox);
+    // grand total $1.50
+
+    // update vanilla scoops to 2; grand total should be $5.50
+    const vanillaInput = await screen.findByRole("spinbutton", {
+      name: "Vanilla",
+    });
+    await user.clear(vanillaInput);
+    await user.type(vanillaInput, "2");
+
+    // remove 1 scoop of vanilla and check grand total
+    await user.clear(vanillaInput);
+    await user.type(vanillaInput, "1");
+
+    // check grand total
+    const grandTotal = screen.getByRole("heading", { name: /Grand total: \$/ });
+    expect(grandTotal).toHaveTextContent("3.50");
+
+    // remove cherries and check grand total
+    await user.click(cherriesCheckbox);
+    expect(grandTotal).toHaveTextContent("2.00");
   });
 });
